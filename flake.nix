@@ -9,27 +9,28 @@
     };
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
-
-  outputs = {
-    self,
-    nixpkgs,
-    utils,
-    naersk,
-    fenix,
-    pre-commit-hooks,
-  }:
-    utils.lib.eachDefaultSystem (system: let
+  outputs =
+    { self
+    , nixpkgs
+    , utils
+    , naersk
+    , fenix
+    , pre-commit-hooks
+    ,
+    }: utils.lib.eachDefaultSystem (system:
+    let
       pkgs = import nixpkgs {
         inherit system;
         overlays = [
           fenix.overlays.default
         ];
       };
-      naersk-lib = pkgs.callPackage naersk {};
-    in {
+      naersk-lib = pkgs.callPackage naersk { };
+    in
+    {
       defaultPackage = naersk-lib.buildPackage {
         src = ./.;
-        buildInputs = [];
+        buildInputs = [ ];
         RUST_LOG = "trace";
       };
       checks = {
@@ -37,14 +38,16 @@
           src = ./.;
           hooks = {
             nixpkgs-fmt.enable = true;
-            cargo-check.enable = true;
             rustfmt.enable = true;
+            commitzen.enable = true;
           };
         };
       };
 
       devShell = with pkgs;
         mkShell {
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
+
           buildInputs = [
             (pkgs.fenix.complete.withComponents [
               "cargo"
@@ -55,10 +58,11 @@
             ])
             cargo-watch
             pre-commit
+            nixpkgs-fmt
           ];
 
           RUST_LOG = "debug";
-          nativeBuildInputs = [pkgs.pkg-config];
+          nativeBuildInputs = [ pkgs.pkg-config ];
           RUST_SRC_PATH = rustPlatform.rustLibSrc;
         };
     });
