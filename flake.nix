@@ -39,7 +39,13 @@
           hooks = {
             nixpkgs-fmt.enable = true;
             rustfmt.enable = true;
-            commitzen.enable = true;
+            clippy.enable = true;
+          };
+          settings = {
+            clippy = {
+              offline = false;
+              denyWarnings = true;
+            };
           };
         };
       };
