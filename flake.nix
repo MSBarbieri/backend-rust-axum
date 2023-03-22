@@ -39,37 +39,34 @@
           hooks = {
             nixpkgs-fmt.enable = true;
             rustfmt.enable = true;
-            clippy.enable = true;
           };
           settings = {
             clippy = {
-              offline = false;
               denyWarnings = true;
             };
           };
         };
       };
 
-      devShell = with pkgs;
-        mkShell {
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
+      devShell = nixpkgs.legacyPackages.${system}.mkShell {
+        inherit (self.checks.${system}.pre-commit-check) shellHook;
 
-          buildInputs = [
-            (pkgs.fenix.complete.withComponents [
-              "cargo"
-              "clippy"
-              "rust-src"
-              "rustc"
-              "rustfmt"
-            ])
-            cargo-watch
-            pre-commit
-            nixpkgs-fmt
-          ];
+        buildInputs = with pkgs; [
+          (pkgs.fenix.complete.withComponents [
+            "cargo"
+            "clippy"
+            "rust-src"
+            "rustc"
+            "rustfmt"
+          ])
+          cargo-watch
+          pre-commit
+          nixpkgs-fmt
+        ];
 
-          RUST_LOG = "debug";
-          nativeBuildInputs = [ pkgs.pkg-config ];
-          RUST_SRC_PATH = rustPlatform.rustLibSrc;
-        };
+        RUST_LOG = "debug";
+        nativeBuildInputs = [ pkgs.pkg-config ];
+        RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
+      };
     });
 }
