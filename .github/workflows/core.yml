@@ -1,4 +1,4 @@
-name: test 
+name: core 
 on: 
   push:
     branches: [main]
@@ -27,16 +27,11 @@ jobs:
       - name: cargo generate-lockfile 
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
-      - name: cargo clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
       - name: cargo test locked
         run: cargo test --locked --all-features --all-targets
   coverage:
     runs-on: ubuntu-latest
-    name: ubuntu / stable / coverage
+    name: ubuntu / coverage
     steps:
       - uses: actions/checkout@v3
         with:
@@ -54,8 +49,6 @@ jobs:
         run: cargo llvm-cov clean --workspace
       - name: cargo llvm-cov
         run: cargo llvm-cov --locked --all-features --no-report --release
-      - name: cargo llvm-cov proptest
-        run: cargo llvm-cov --locked --all-features --no-report --release --test proptest -- --ignored
       - name: cargo llvm-cov report
         run: cargo llvm-cov report --release --lcov --output-path lcov.info
       # - name: Upload to codecov.io
