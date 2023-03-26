@@ -21,3 +21,14 @@ impl From<LogLevel> for tracing::Level {
         }
     }
 }
+impl ToString for LogLevel {
+    fn to_string(&self) -> String {
+        match self {
+            LogLevel::Debug => "debug".to_string(),
+            LogLevel::Trace => "trace".to_string(),
+            LogLevel::Info => "info".to_string(),
+            LogLevel::Wawn => "warn".to_string(),
+            LogLevel::Error => "error".to_string(),
+        }
+    }
+}
