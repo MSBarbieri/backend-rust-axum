@@ -1,7 +1,12 @@
-use std::net::SocketAddr;
-
 use axum::{response::IntoResponse, routing::get};
+use cfg_if::cfg_if;
+use std::net::SocketAddr;
 use thiserror::Error;
+
+cfg_if! {
+if #[cfg(feature = "trace")]{
+use axum_tracing_opentelemetry::{opentelemetry_tracing_layer, response_with_trace_layer};
+}}
 
 #[derive(Error, Debug)]
 pub enum ServerError {
@@ -16,10 +21,18 @@ pub enum ServerError {
     #[error("Unknown Start Server Error")]
     Unknown,
 }
+
 pub async fn create_server(cli: crate::cli::Cli) -> Result<(), ServerError> {
     let addr: SocketAddr = cli.address.parse().unwrap();
-    let server = axum::Router::new().route("/", get(root));
-
+    #[allow(unused_mut)] // this mut is used when is builded with telemetry enable.
+    let mut server = axum::Router::new().route("/", get(root));
+    cfg_if! {
+    if #[cfg(feature = "trace")] {
+    server = server
+        .layer(response_with_trace_layer())
+        .layer(opentelemetry_tracing_layer());
+    }
+    }
     log::info!("Server Started with address: {:?}", cli.address.clone());
     axum::Server::bind(&addr)
         .serve(server.into_make_service())

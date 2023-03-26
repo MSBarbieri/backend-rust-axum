@@ -62,9 +62,12 @@
           cargo-watch
           pre-commit
           nixpkgs-fmt
+          openssl
+          protobuf
         ];
 
         RUST_LOG = "debug";
+
         nativeBuildInputs = [ pkgs.pkg-config ];
         RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
       };
