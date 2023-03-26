@@ -141,7 +141,7 @@ pub fn setup_tracing(cli: &Cli) -> Result<(), TracingError> {
     tracing::info!("init logging & tracing");
 
     let subscriber = tracing_subscriber::registry()
-        .with(build_otel_layer(&cli)?)
+        .with(build_otel_layer(cli)?)
         .with(build_loglevel_filter_layer(cli))
         .with(build_logger_text());
     tracing::subscriber::set_global_default(subscriber)?;
