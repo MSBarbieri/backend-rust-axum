@@ -17,7 +17,8 @@
     , fenix
     , pre-commit-hooks
     ,
-    }: utils.lib.eachDefaultSystem (system:
+    }:
+    utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
